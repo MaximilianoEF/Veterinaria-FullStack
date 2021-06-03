@@ -6,55 +6,84 @@ const localidad_duenio = document.getElementById("localidad");
 const formulario_crear = document.getElementById("form");
 const boton_guardar = document.getElementById("guardar");
 const indice = document.getElementById("indice");
+const url = "http://localhost:5000/duenios";
 
-let personas = [
-    {
-        dni: "01234",
-        nombre: "Maximiliano",
-        apellido: "Franco",
-        localidad: "Merlo"
+let personas = [];
+
+async function listarDuenios() {
+    try{
+        const respuesta = await fetch(url);
+        const personasDelServer = await respuesta.json();
+        if(Array.isArray(personasDelServer)){
+            personas = personasDelServer;
+        }
+        if(personas.length > 0){
+            let htmlDuenios = personas.map((persona) => 
+            `<tr>
+                <th scope="row">${persona.dni}</th>
+                <td>${persona.nombre}</td>
+                <td>${persona.apellido}</td>
+                <td>${persona.localidad}</td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-success editar" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="far fa-edit"></i></button>
+                    <button type="button" class="btn btn-danger eliminar"><i class="far fa-trash-alt"></i></button>
+                    </div>
+                </td>
+            </tr>`
+            ).join("");
+            lista_duenios.innerHTML = htmlDuenios;
+            Array.from(document.getElementsByClassName("editar")).forEach((boton, index) => boton.onclick = editar(index));
+            Array.from(document.getElementsByClassName("eliminar")).forEach((boton, index) => boton.onclick = eliminar(index));
+            return;
+        }
+        lista_duenios.innerHTML = `
+            <tr>
+                <td colspan="5">No hay Veterinari@s</td>
+            </tr>`;
+    } catch(error) {
+        console.log(error);
+        $(".alert").show;
     }
-];
-
-function listarDuenios() {
-    let htmlDuenios = personas.map((persona) => 
-    `<tr>
-        <th scope="row">${persona.dni}</th>
-        <td>${persona.nombre}</td>
-        <td>${persona.apellido}</td>
-        <td>${persona.localidad}</td>
-        <td>
-            <div class="btn-group" role="group" aria-label="Basic example">
-              <button type="button" class="btn btn-success editar" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="far fa-edit"></i></button>
-              <button type="button" class="btn btn-danger eliminar"><i class="far fa-trash-alt"></i></button>
-            </div>
-        </td>
-    </tr>`
-    ).join("");
-    lista_duenios.innerHTML = htmlDuenios;
-    Array.from(document.getElementsByClassName("editar")).forEach((boton, index) => boton.onclick = editar(index));
-    Array.from(document.getElementsByClassName("eliminar")).forEach((boton, index) => boton.onclick = eliminar(index));
 }
 
-function enviarDatos(e) {
+async function enviarDatos(e) {
     e.preventDefault();
-    const datos = {
-        dni: dni.value,
-        nombre: nombre_duenio.value,
-        apellido: apellido_duenio.value,
-        localidad: localidad_duenio.value 
-    };
-    const accion = boton_guardar.innerHTML;
-    switch(accion) {
-        case 'Editar':
+    try {
+        const datos = {
+            dni: dni.value,
+            nombre: nombre_duenio.value,
+            apellido: apellido_duenio.value,
+            localidad: localidad_duenio.value 
+        };
+        //Si estamos creando
+        let method = 'POST';
+        let urlEnvio = url;
+        const accion = boton_guardar.innerHTML;
+        //Si estamos editando
+        if(accion === 'Editar'){
+            method = 'PUT';
             personas[indice.value] = datos;
-            break;
-        default:
-            personas.push(datos);
-            break;
+            urlEnvio = `${url}/${indice.value}`;
+        }
+        
+        //Aca ya esta haciendo el envio de datos
+        const respuesta = await fetch(urlEnvio, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(datos),
+        });
+    
+        if(respuesta.ok){
+            listarDuenios();
+            resetModal();
+        }
+    } catch(error){
+        console.log(error);
+        $(".alert").show;
     }
-    listarDuenios();
-    resetModal();
 }
 
 function editar(index) {
@@ -79,9 +108,20 @@ function resetModal() {
 }
 
 function eliminar(index) {
-    return function clickEnEliminar() {
-        personas = personas.filter((persona, indice) => indice !== index);
-        listarDuenios();
+    const urlEnvio = `${url}/${index}`;
+    return async function clickEnEliminar() {
+        try {
+            const respuesta = await fetch(urlEnvio, {
+                method: 'DELETE',
+            });
+        
+            if(respuesta.ok){
+                listarDuenios();
+            }
+        } catch(error) {
+            console.log(error);
+            $(".alert").show;
+        }
     };
 }
 

@@ -20,8 +20,16 @@ module.exports = {
             veterinario: 0,
             fechaCreacion: new Date(),
             fechaEdicion: new Date(),
-            historia: '',
-            diagnostico: '', 
+            historia: 'Se presento con un cuadro de fiebre y comezon en la zona abdominal',
+            diagnostico: 'Posible caso de dermatitis aguda', 
+        },
+        {
+            mascota: 1, 
+            veterinario: 2,
+            fechaCreacion: new Date(),
+            fechaEdicion: new Date(),
+            historia: 'Se presento con una fractura expuesta en la pata inferior derecha con infeccion',
+            diagnostico: 'Fractura de perone', 
         }
     ]
 };

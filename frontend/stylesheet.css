@@ -9,3 +9,20 @@
 .col {
     padding: 8px;
 }
+
+.lista-vacia{
+    text-align: center;
+}
+
+.actions-menu-contents{
+    display: flex;
+    justify-content: space-between;
+}
+
+.actions-menu-contents > button.btn.btn-primary{
+    height: 40px;
+}
+
+.alert {
+    display: none;
+} 

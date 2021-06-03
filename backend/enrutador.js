@@ -8,5 +8,5 @@ module.exports = {
     veterinarios: veterinarios(recursos.veterinarios),
     mascotas: mascotas(recursos.mascotas),
     duenios: duenios(recursos.duenios),
-    consultas: consultas(recursos.consultas),
+    consultas: consultas(recursos),
 }
